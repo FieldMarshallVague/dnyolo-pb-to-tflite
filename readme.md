@@ -22,5 +22,10 @@ Note: Make a note of the MEAN and STD values that are output at the end of calib
 
 ### Step 2:
 
+__Option 1:__
+Run convert.py as-is (generates 3 models, takes a while)
+__Option2:__
+comment out the function calls in conert.py's main function (at the bottom).  Run only fp32 test first, then others if that works.
 
+Models are saved to the MODELS_DIR folder set in your .env file.
 
