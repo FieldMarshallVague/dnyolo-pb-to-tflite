@@ -10,6 +10,9 @@ env_vars = dict(os.environ)
 
 CALIBRATION_OUTPUT_DIR = env_vars.get("CALIBRATION_OUTPUT_DIR")
 SAVED_MODEL_DIR = env_vars.get("SAVED_MODEL_DIR")
+MODELS_DIR = env_vars.get("MODELS_DIR")
+if not os.path.exists(MODELS_DIR):
+    os.makedirs(MODELS_DIR)
 
 # Define a representative dataset generator
 def representative_dataset(prepared_samples):
@@ -25,6 +28,11 @@ input_tensor_spec = list(concrete_func.structured_input_signature[1].values())[0
 
 print("Expected shape:", input_tensor_spec.shape)
 print("Expected dtype:", input_tensor_spec.dtype)
+
+def save_model(model, model_filename):
+    save_path = os.join(MODELS_DIR, model_filename)
+    with open(save_path, 'wb') as f:
+        f.write(model)
 
 def get_calibration_data():
     calibration_samples = np.load(os.join(CALIBRATION_OUTPUT_DIR, 'calib_data.npy'))
@@ -52,8 +60,7 @@ def convert_fp32():
     converter_fp32 = tf.lite.TFLiteConverter.from_saved_model(SAVED_MODEL_DIR)
     converter_fp32.optimizations = []
     tflite_model_fp32 = converter_fp32.convert()
-    with open('model_fp32.tflite', 'wb') as f:
-        f.write(tflite_model_fp32)
+    save_model(tflite_model_fp32, 'model_fp32.tflite')
 
 def convert_int8():
     """Full integer quantization (int8)"""
@@ -67,8 +74,7 @@ def convert_int8():
     converter_int8.inference_input_type = tf.int8   # or tf.uint8 as needed
     converter_int8.inference_output_type = tf.int8
     tflite_model_int8 = converter_int8.convert()
-    with open('model_int8.tflite', 'wb') as f:
-        f.write(tflite_model_int8)
+    save_model(tflite_model_int8, 'model_int8.tflite')
 
 def convert_int8_with_int16_activations():
     """Integer quantization with int8 weights and int16 activations"""
@@ -81,8 +87,7 @@ def convert_int8_with_int16_activations():
     # Instruct the converter to allow int16 for activations.
     converter_int8_int16.target_spec.supported_types = [tf.int16]
     tflite_model_int8_int16 = converter_int8_int16.convert()
-    with open('model_int8_int16.tflite', 'wb') as f:
-        f.write(tflite_model_int8_int16)
+    save_model(tflite_model_int8_int16, 'model_int8_int16.tflite')
 
 def main():
     convert_fp32()
