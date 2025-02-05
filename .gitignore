@@ -1,0 +1,7 @@
+.env
+
+saved_model/
+calibration/data/
+
+*Zone.Identifier
+models/

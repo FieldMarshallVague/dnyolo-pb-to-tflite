@@ -1,0 +1,4 @@
+tensorflow
+numpy
+python-dotenv
+opencv-python
